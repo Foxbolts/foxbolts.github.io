@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Rapid prototyping with AI</title>
+<title>Rapid prototyping with AI · Mozilla style</title>
 <style>
 :root{
   --paper:#f5f1e8; --paper-2:#ece6d8; --ink:#1b1916; --muted:#6b655c; --rule:rgba(27,25,22,.16);
@@ -130,10 +130,6 @@ code{font-family:var(--mono);font-size:.9em}
 #notes{position:fixed;left:0;right:0;bottom:0;height:var(--notes-h,0px);background:#1d1b17;color:#efe9dc;overflow:auto;padding:0;z-index:19;font-size:19px;line-height:1.55}
 #notes .inner{padding:18px 28px 24px;max-width:1200px}
 #notes .meta{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#a79f90;margin-bottom:6px}
-#notes-editor{display:block;width:100%;min-height:160px;resize:vertical;background:#242424;color:#fff;border:1px solid #777;border-radius:8px;padding:12px 14px;font:inherit;line-height:1.45}
-#notes-actions{display:flex;align-items:center;gap:14px;margin-top:10px;font-size:14px}
-#notes-actions button{background:#00e444;color:#161616;border:0;border-radius:7px;padding:7px 14px;font-weight:700}
-#notes-status{color:#b9b9b9}
 .overlay{position:fixed;inset:0;background:rgba(13,12,10,.97);color:#f5f1e8;z-index:30;overflow:auto;padding:48px 64px}
 .overlay[hidden]{display:none}
 .overlay h2{font-family:var(--serif);font-size:34px;font-weight:600;margin-bottom:18px}
@@ -148,6 +144,7 @@ code{font-family:var(--mono);font-size:.9em}
 #help dt{font-family:var(--mono);color:var(--night-accent)}
 #help dd{margin:0}
 :focus-visible{outline:3px solid var(--accent-bright);outline-offset:3px}
+
 
 /* Mozilla template inspired variation */
 @font-face{font-family:'Mozilla Headline';src:url('mozilla-template-assets/MozillaHeadline-Regular.ttf') format('truetype');font-weight:400;font-display:swap}
@@ -236,6 +233,7 @@ html,body{background:#161616;font-family:var(--sans)}
   </div>
   
   <aside class="notes">
+Today is about making a first version and learning from it. You do not have to believe AI will write perfect code. Try it on one real idea, look at what it produces, and decide what deserves more work.
   </aside>
 </section>
 
@@ -246,19 +244,14 @@ html,body{background:#161616;font-family:var(--sans)}
     <ul class="orbit-ideas" aria-label="Ideas from the team"><li>Bookmark all<br>open tabs</li><li>Distraction control</li><li>AI compare tabs</li><li>Microinteractions</li><li>Agentic browsing</li><li>Save reading list<br>offline</li><li>Homepage shortcut<br>folders</li><li>Quicker access<br>to incognito</li></ul>
   </div>
   <aside class="notes">
-- Rapid prototyping means building a quick, limited version of an idea so we can test it, get feedback, and decide whether to improve it or move on.
-- As you can see, we have plenty of ideas. The question is which ideas hold value?
-- Rapid prototyping itself isn’t new. So what has changed?
+The phrases around the title come from our team's Engineering Summit list, from bookmark all open tabs to AI compare tabs. We already have more ideas than time. We do not need complete versions to learn something: a small working slice in the app, or even a focused investigation, can reveal what is hard and what is worth pursuing. Agents shorten the path to that first result, so we can try more ideas and get feedback sooner. After a quick visual pause, we will talk about the boundary for code we keep.
   </aside>
 </section>
 
 <!-- 3 -->
 <section class="slide night gif-slide" data-title="A first pass can start small" data-time="0:10">
   <div class="body"><img src="rapid-prototyping-assets/giphy-ai.gif" alt="SpongeBob excitedly raising his hands"></div>
-  <aside class="notes">
-- We now have capable AI models that can help us build a first pass in the actual project at a speed and cost that make more experiments practical.
-- Before we look at a real example, let’s agree on what to expect from the code they produce.
-  </aside>
+  <aside class="notes">Pause for the reaction, then move into the first-pass mindset.</aside>
 </section>
 
 <!-- 4 -->
@@ -269,10 +262,7 @@ html,body{background:#161616;font-family:var(--sans)}
   </div>
   
   <aside class="notes">
-- It's like looking at someone else's code and saying “I wouldn’t have written it that way." Some of that reaction is about seeing choices you may not agree with, and some of it might actually be just crappy code.
-- But a prototype doesn’t need polished code to answer its first question. AI may miss conventions or make poor tradeoffs, but it can produce a working first pass quickly.
-- Let’s set aside our preferred implementation long enough to try the idea. If the code is worth keeping, we still review it, improve it, and test it.
-- With that expectation set, where do we start?
+AI may choose a different structure or miss conventions you would catch. The speed still matters: a first pass can get an idea into the app quickly enough to test. When the result is worth keeping, review the design, make the code readable, check behavior, and test the risks. AI makes mistakes, just as we do, so the check is part of the workflow.
   </aside>
 </section>
 
@@ -283,10 +273,7 @@ html,body{background:#161616;font-family:var(--sans)}
     <h2 class="title">Just use the <em>chat box.</em></h2><div class="prompt-demo">After swiping the address bar up, let me drag left to close the tab or right to bookmark it, with visible hints for both actions.<span class="send-indicator" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
   </div>
   <aside class="notes">
-- I really like Alex’s work on the address-bar close-tab gesture. Let’s see how quickly we can improve it.
-- Start with the chat box in the project and describe the behavior you want. This prompt asks for left and right drag actions with visible hints in the existing app.
-- Skills, MCP, and more elaborate workflows can help later. We don’t need them to make this first request.
-- Now let’s see what the first pass produced.
+No elaborate prompt framework or role persona is needed. Open Codex or Claude Code in the project and describe the behavior you want. This example gives the agent a concrete gesture and visible result to build in the existing app. If the gesture mechanics or hints are ambiguous, let the agent ask before coding. The crossed-out terms are tools or workflows that might become useful later, but none is needed to try this first request.
   </aside>
 </section>
 
@@ -294,25 +281,14 @@ html,body{background:#161616;font-family:var(--sans)}
 <section class="slide night gesture-slide" data-title="Address bar gesture prototype" data-time="0:20">
   <div class="body"><img class="result-image" src="rapid-prototyping-assets/address-bar-prompt-result.png" alt="Codex screenshot showing the gesture request and an implementation summary after 3 minutes 19 seconds"><img class="demo-gif" src="rapid-prototyping-assets/address-bar-gesture.gif" alt="Firefox iOS prototype showing a tab dragged sideways with Close Tab and Bookmark Page hints"></div>
   <p class="footnote">Created with GPT 6 Sol on Medium Reasoning.</p>
-  <aside class="notes">
-- Well there you have it.
-- The screenshot shows the request and implementation summary; the recording shows the gesture running in the app
-- This first pass took 3 minutes and 19 seconds
-- So, what happens if we give a more detailed refinement request?
-  </aside>
+  <aside class="notes">Let the recording loop once or twice. The screenshot shows the request and implementation summary; the screen recording shows the gesture running in the app. This prototype was created with GPT 6 Sol on Medium Reasoning.</aside>
 </section>
 
 <!-- 7 -->
 <section class="slide night gesture-slide" data-title="Refined address bar gesture" data-time="0:20">
   <div class="body"><img class="result-image" src="rapid-prototyping-assets/address-bar-refinement-result.png" alt="Codex screenshot describing the refined address bar gesture and its implementation after 3 minutes 32 seconds"><img class="demo-gif" src="rapid-prototyping-assets/address-bar-refined-demo.gif" alt="Firefox iOS prototype showing animated close and bookmark zones around a draggable tab preview"></div>
   <p class="footnote">Created with GPT 6 Astra on High Reasoning.</p>
-  <aside class="notes">
-- Here is a more detailed request, with a stronger result
-- The request was more specific: Add labels, animate the close and bookmark zones, return them on drag
-- The point is the iteration: try a working version, notice what feels wrong, and describe the next change.
-- This took 3 minutes and 32 seconds.
-- A few tool choices can make that loop easier. Let’s look at those next.
-  </aside>
+  <aside class="notes">Let the recording loop once or twice. This second pass adds fixed edge zones, release labels, and animations around the tab preview. The screenshot shows the follow-up request and implementation summary. It was created with GPT 6 Astra on High Reasoning.</aside>
 </section>
 
 <!-- 8 -->
@@ -321,12 +297,7 @@ html,body{background:#161616;font-family:var(--sans)}
     <h2 class="title">Tips &amp; <em>tricks.</em></h2>
     <div class="tips-grid"><div><h3>Fast mode</h3><p>Spend less time waiting when iteration speed matters.</p><p class="tip-detail">Codex: /fast on<br>Claude Code: /fast</p></div><div><h3>Reasoning effort</h3><p>Start at the default. Turn it up for ambiguous or complex work.</p><p class="tip-detail">Codex: model picker<br>Claude Code: /effort</p></div><div><h3>Give it eyes</h3><p>Share screenshots or recordings. Ask for visual evidence in return.</p><p class="tip-detail">Tell it to use Simulator<br>or iPhone Mirroring</p></div></div>
   </div>
-  <aside class="notes">
-- Although I think this is currently disabled for our organization, when available, use fast mode to speed up development
-- Start at the baseline models (Opus 5.5, GPT 6.1 Sol) and lower reasoning efforts (medium, high), and bump up to larger models (Astra and Fable)0 and higher reasoning effort (xhigh, max) when the task is ambiguous, complex, or the current model/reasoning effort just isn't getting it
-- Give the agent visual context: share screenshots or recordings, and say exactly what should change.
-- Ask it to show you the result (screenshots, recordings), too, using Simulator or iPhone Mirroring when available. Review what actually appears in the app.
-  </aside>
+  <aside class="notes">Start with the defaults. Fast mode can shorten waits on supported models, usually at higher cost: Codex uses /fast on, and Claude Code uses /fast. Raise reasoning effort when a task is genuinely ambiguous or complex; use the Codex model picker or Claude Code /effort. Share screenshots or recordings with specific feedback. Ask the agent to return visual evidence from Simulator or iPhone Mirroring when available.</aside>
 </section>
 
 <!-- 9 -->
@@ -336,8 +307,7 @@ html,body{background:#161616;font-family:var(--sans)}
   </div>
   
   <aside class="notes">
-- Models have improved substantially. A disappointing experience from months ago may not predict what one can do for you today.
-- You don’t need to follow every launch. Try a current tool on one real task and judge the result yourself.
+Play the clip with V or the video control. It is silent and runs for 29 seconds. Christian Elton's visualization shows how closely major model releases now arrive. His selection of releases is illustrative, not an official census. The point is modest: if you tried an AI coding tool months ago and it disappointed you, retest that assumption on one current task. You do not need to chase every model launch.
   </aside>
 </section>
 
@@ -346,13 +316,12 @@ html,body{background:#161616;font-family:var(--sans)}
   <div class="body">
     <h2 class="title">Your turn.<br><em>Let’s build.</em></h2>
   </div>
-  <aside class="notes">
-  </aside>
+  <aside class="notes">Now the hackathon begins. Pick one idea you have put off, ask Codex or Claude Code for a small working version in this project, then try it and make one revision. Bring back a quick demo and one thing you learned. Let’s build.</aside>
 </section>
 </div>
 </main>
 
-<div id="notes" aria-label="Speaker notes" hidden><div class="inner"><p class="meta" id="notes-meta"></p><textarea id="notes-editor" aria-label="Presenter notes for current slide" spellcheck="true"></textarea><div id="notes-actions"><button id="notes-save" type="button">Download notes</button><span id="notes-status" role="status"></span></div></div></div>
+<div id="notes" aria-label="Speaker notes" hidden><div class="inner"><p class="meta" id="notes-meta"></p><div id="notes-text"></div></div></div>
 
 <nav id="bar" aria-label="Deck controls">
   <button id="prev" aria-label="Previous slide">←</button>
@@ -377,7 +346,6 @@ html,body{background:#161616;font-family:var(--sans)}
     <dt>3 then Enter</dt><dd>Jump to slide 3</dd>
     <dt>S</dt><dd>Slide list</dd>
     <dt>N</dt><dd>Speaker notes on this screen</dd>
-    <dt>⌘S / Ctrl+S</dt><dd>Download presenter notes as Markdown</dd>
     <dt>P</dt><dd>Presenter window with notes, next slide, and timer (for a second screen)</dd>
     <dt>F</dt><dd>Fullscreen</dd>
     <dt>V</dt><dd>Play / pause the video</dd>
@@ -392,9 +360,6 @@ html,body{background:#161616;font-family:var(--sans)}
   const deck = document.getElementById('deck');
   const bar = document.getElementById('bar');
   const notesEl = document.getElementById('notes');
-  const notesEditor = document.getElementById('notes-editor');
-  const originalNotes = slides.map(s => (s.querySelector('.notes')?.textContent || '').trim());
-  const dirtyNotes = new Set();
   const video = document.getElementById('timeline-video');
   let current = 0, typed = '', typedTimer = null, hideTimer = null, presenter = null, gifVisit = 0;
   const startedAt = Date.now();
@@ -410,43 +375,6 @@ html,body{background:#161616;font-family:var(--sans)}
 
   const notesText = i => (slides[i].querySelector('.notes')?.textContent || '').trim();
 
-  function setNotesStatus(message) {
-    document.getElementById('notes-status').textContent = message;
-    if (presenter && !presenter.closed) presenter.document.getElementById('notes-status').textContent = message;
-  }
-
-  function editNotes(value, fromPresenter = false) {
-    slides[current].querySelector('.notes').textContent = '\n' + value.trim() + '\n  ';
-    if (notesText(current) === originalNotes[current]) dirtyNotes.delete(current);
-    else dirtyNotes.add(current);
-    if (fromPresenter) notesEditor.value = value;
-    else if (presenter && !presenter.closed) presenter.document.getElementById('n').value = value;
-    setNotesStatus(dirtyNotes.size ? 'Unsaved edits' : 'Saved');
-  }
-
-  function downloadNotes(event) {
-    try {
-      const sections = slides.map((slide, i) => {
-        const title = slide.dataset.title;
-        const target = slide.dataset.time;
-        return '## ' + (i + 1) + '. ' + title + '\n- Target: ' + target + '\n' + notesText(i);
-      });
-      const markdown = '# Rapid prototyping with AI — speaker notes\n\n' + sections.join('\n\n') + '\n';
-      const activeWindow = event.target.ownerDocument.defaultView;
-      const url = URL.createObjectURL(new Blob([markdown], {type:'text/markdown;charset=utf-8'}));
-      const link = activeWindow.document.createElement('a');
-      link.href = url;
-      link.download = 'rapid-prototyping-with-ai-speaker-notes-edited.md';
-      activeWindow.document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
-      setNotesStatus('Downloaded notes Markdown. Send that file back for edits.');
-    } catch (error) {
-      setNotesStatus(error.message || 'Could not download notes');
-    }
-  }
-
   function go(i, fromHash) {
     i = Math.max(0, Math.min(slides.length - 1, i));
     if (slides[current] !== slides[i] && video && !video.paused) video.pause();
@@ -461,8 +389,7 @@ html,body{background:#161616;font-family:var(--sans)}
     document.getElementById('progress').style.width = ((i + 1) / slides.length * 100) + '%';
     document.getElementById('notes-meta').textContent =
       (slides[i].dataset.title || '') + ' · ' + (slides[i].dataset.time === 'Ref' ? 'reference' : slides[i].dataset.time);
-    notesEditor.value = notesText(i);
-    setNotesStatus(dirtyNotes.size ? 'Unsaved edits' : '');
+    document.getElementById('notes-text').innerHTML = notesText(i).split(/\n\s*\n/).map(p => '<p style="margin:0 0 12px">' + escapeHtml(p) + '</p>').join('');
     document.title = (slides[i].dataset.title || '') + ' · Rapid prototyping with AI';
     if (!fromHash) history.replaceState(null, '', '#' + (i + 1));
     document.querySelectorAll('#list ol button').forEach(b => b.setAttribute('aria-current', String(+b.dataset.i === i)));
@@ -521,16 +448,14 @@ html,body{background:#161616;font-family:var(--sans)}
         'body{margin:0;background:#16140f;color:#f5f1e8;font:20px/1.55 "Avenir Next","Segoe UI",system-ui,sans-serif;padding:28px 36px}' +
         'header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #3a352d;padding-bottom:12px;margin-bottom:18px}' +
         'h1{font:600 34px/1.15 "Iowan Old Style",Georgia,serif;margin:0}#meta,#nextt{color:#a79f90;font-size:16px;letter-spacing:.06em;text-transform:uppercase}' +
-        '#timer{font:600 40px "SF Mono",Menlo,monospace}#n{display:block;width:100%;height:320px;resize:vertical;background:#242424;color:#fff;border:1px solid #777;border-radius:8px;padding:12px 14px;font:20px/1.5 "Avenir Next",system-ui,sans-serif}#notes-status{color:#aaa;font-size:14px}' +
+        '#timer{font:600 40px "SF Mono",Menlo,monospace}#n p{margin:0 0 14px;max-width:62em;font-size:24px}' +
         'nav{margin-top:18px;display:flex;gap:10px}button{font:inherit;font-size:16px;background:#2a2620;color:inherit;border:1px solid #4a443a;border-radius:8px;padding:8px 14px;cursor:pointer}' +
-        '</style><header><div><div id="meta"></div><h1 id="t"></h1></div><div id="timer">00:00</div></header><textarea id="n" aria-label="Presenter notes for current slide"></textarea>' +
-        '<p id="nextt"></p><nav><button id="pp">← Prev</button><button id="nn">Next →</button><button id="rs">Reset timer</button><button id="notes-save">Download notes</button><span id="notes-status"></span></nav>');
+        '</style><header><div><div id="meta"></div><h1 id="t"></h1></div><div id="timer">00:00</div></header><div id="n"></div>' +
+        '<p id="nextt"></p><nav><button id="pp">← Prev</button><button id="nn">Next →</button><button id="rs">Reset timer</button></nav>');
       d.close();
       d.getElementById('pp').onclick = () => go(current - 1);
       d.getElementById('nn').onclick = () => go(current + 1);
       d.getElementById('rs').onclick = () => { presenter._t0 = Date.now(); };
-      d.getElementById('n').oninput = e => editNotes(e.target.value, true);
-      d.getElementById('notes-save').onclick = downloadNotes;
       presenter._t0 = Date.now();
       d.addEventListener('keydown', onKey);
       clearInterval(presenter._iv);
@@ -547,20 +472,12 @@ html,body{background:#161616;font-family:var(--sans)}
       const d = presenter.document, s = slides[current];
       d.getElementById('t').textContent = s.dataset.title;
       d.getElementById('meta').textContent = label(current) + ' · ' + (s.dataset.time === 'Ref' ? 'reference' : 'target ' + s.dataset.time);
-      d.getElementById('n').value = notesText(current);
-      d.getElementById('notes-status').textContent = dirtyNotes.size ? 'Unsaved edits' : '';
+      d.getElementById('n').innerHTML = notesText(current).split(/\n\s*\n/).map(p => '<p>' + escapeHtml(p) + '</p>').join('');
       d.getElementById('nextt').textContent = current < slides.length - 1 ? 'Next: ' + slides[current + 1].dataset.title : 'End of deck';
     } catch (e) {}
   }
 
   function onKey(e) {
-    if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key.toLowerCase() === 's' &&
-        (e.currentTarget !== document || !notesEl.hidden)) {
-      e.preventDefault();
-      downloadNotes(e);
-      return;
-    }
-    if (e.target.closest && e.target.closest('textarea,input,[contenteditable="true"]')) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     const k = e.key;
     if (k === 'Escape') { if (overlayOpen()) { closeOverlays(); e.preventDefault(); } return; }
@@ -585,8 +502,6 @@ html,body{background:#161616;font-family:var(--sans)}
   }
 
   document.addEventListener('keydown', onKey);
-  notesEditor.addEventListener('input', e => editNotes(e.target.value));
-  document.getElementById('notes-save').onclick = downloadNotes;
   document.getElementById('prev').onclick = () => go(current - 1);
   document.getElementById('next').onclick = () => go(current + 1);
   document.getElementById('btn-help').onclick = () => openOverlay('help');

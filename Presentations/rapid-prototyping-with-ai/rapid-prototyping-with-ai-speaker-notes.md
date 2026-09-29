@@ -1,63 +1,60 @@
 # Rapid prototyping with AI — speaker notes
 
-Ten slides · 7:35 total, including the silent 29-second video on slide 9. Slide timings are targets, not a timer in the deck.
-
-Open `rapid-prototyping-with-ai.html` with `rapid-prototyping-assets/` beside it. Arrow keys or Space navigate; **S** opens the slide list; **N** shows notes; **P** opens a presenter window; **F** requests fullscreen; **?** shows shortcuts. On slide 9, **V** plays or pauses the video.
-
 ## 1. Rapid prototyping with AI
-*Target: 0:20*
+- Target: 0:20
 
-Today is about making a first version and learning from it. You do not have to believe AI will write perfect code. Try it on one real idea, look at what it produces, and decide what deserves more work.
 
 ## 2. Test more ideas. Get feedback sooner.
-*Target: 0:55*
+- Target: 0:55
+- Rapid prototyping means building a quick, limited version of an idea so we can test it, get feedback, and decide whether to improve it or move on.
+- As you can see, we have plenty of ideas. The question is which ideas hold value?
+- Rapid prototyping itself isn’t new. So what has changed?
 
-The phrases around the title come from our team's Engineering Summit list, from bookmark all open tabs to AI compare tabs. We already have more ideas than time. We do not need complete versions to learn something: a small working slice in the app, or even a focused investigation, can reveal what is hard and what is worth pursuing. Agents shorten the path to that first result, so we can try more ideas and get feedback sooner. After a quick visual pause, we will talk about the boundary for code we keep.
-
-## 3. GIF interlude
-*Target: 0:10*
-
-Pause for the reaction, then move into the first-pass mindset.
+## 3. A first pass can start small
+- Target: 0:10
+- We now have capable AI models that can help us build a first pass in the actual project at a speed and cost that make more experiments practical.
+- Before we look at a real example, let’s agree on what to expect from the code they produce.
 
 ## 4. AI may not code as good as you (yet)
-*Target: 0:55*
-
-AI may choose a different structure or miss conventions you would catch. The speed still matters: a first pass can get an idea into the app quickly enough to test. When the result is worth keeping, review the design, make the code readable, check behavior, and test the risks. AI makes mistakes, just as we do, so the check is part of the workflow.
+- Target: 0:55
+- It's like looking at someone else's code and saying “I wouldn’t have written it that way." Some of that reaction is about seeing choices you may not agree with, and some of it might actually be just crappy code.
+- But a prototype doesn’t need polished code to answer its first question. AI may miss conventions or make poor tradeoffs, but it can produce a working first pass quickly.
+- Let’s set aside our preferred implementation long enough to try the idea. If the code is worth keeping, we still review it, improve it, and test it.
+- With that expectation set, where do we start?
 
 ## 5. Just use the chat box.
-*Target: 1:05*
-
-No elaborate prompt framework or role persona is needed. Open Codex or Claude Code in the project and describe the behavior you want. This example gives the agent a concrete gesture and visible result to build in the existing app. If the gesture mechanics or hints are ambiguous, let the agent ask before coding. The crossed-out terms are tools or workflows that might become useful later, but none is needed to try this first request.
+- Target: 1:05
+- I really like Alex’s work on the address-bar close-tab gesture. Let’s see how quickly we can improve it.
+- Start with the chat box in the project and describe the behavior you want. This prompt asks for left and right drag actions with visible hints in the existing app.
+- Skills, MCP, and more elaborate workflows can help later. We don’t need them to make this first request.
+- Now let’s see what the first pass produced.
 
 ## 6. Address bar gesture prototype
-*Target: 0:20*
-
-Let the recording loop once or twice. The screenshot shows the request and implementation summary; the screen recording shows the gesture running in the app. This prototype was created with GPT 6 Sol on Medium Reasoning.
+- Target: 0:20
+- Well there you have it.
+- The screenshot shows the request and implementation summary; the recording shows the gesture running in the app
+- This first pass took 3 minutes and 19 seconds
+- So, what happens if we give a more detailed refinement request?
 
 ## 7. Refined address bar gesture
-*Target: 0:20*
-
-Let the recording loop once or twice. This second pass adds fixed edge zones, release labels, and animations around the tab preview. The screenshot shows the follow-up request and implementation summary. It was created with GPT 6 Astra on High Reasoning.
+- Target: 0:20
+- Here is a more detailed request, with a stronger result
+- The request was more specific: Add labels, animate the close and bookmark zones, return them on drag
+- The point is the iteration: try a working version, notice what feels wrong, and describe the next change.
+- This took 3 minutes and 32 seconds.
+- A few tool choices can make that loop easier. Let’s look at those next.
 
 ## 8. Tips & tricks
-*Target: 1:30*
-
-Start with the defaults. Fast mode can shorten waits on supported models, usually at higher cost: Codex uses /fast on, and Claude Code uses /fast. Raise reasoning effort when a task is genuinely ambiguous or complex; use the Codex model picker or Claude Code /effort. Share screenshots or recordings with specific feedback. Ask the agent to return visual evidence from Simulator or iPhone Mirroring when available.
+- Target: 1:30
+- Although I think this is currently disabled for our organization, when available, use fast mode to speed up development
+- Start at the baseline models (Opus 5.5, GPT 6.1 Sol) and lower reasoning efforts (medium, high), and bump up to larger models (Astra and Fable)0 and higher reasoning effort (xhigh, max) when the task is ambiguous, complex, or the current model/reasoning effort just isn't getting it
+- Give the agent visual context: share screenshots or recordings, and say exactly what should change.
+- Ask it to show you the result (screenshots, recordings), too, using Simulator or iPhone Mirroring when available. Review what actually appears in the app.
 
 ## 9. The baseline has changed.
-*Target: 1:10*
-
-Play the clip with V or the video control. It is silent and runs for 29 seconds. Christian Elton's visualization shows how closely major model releases now arrive. His selection of releases is illustrative, not an official census. The point is modest: if you tried an AI coding tool months ago and it disappointed you, retest that assumption on one current task. You do not need to chase every model launch.
+- Target: 1:10
+- Models have improved substantially. A disappointing experience from months ago may not predict what one can do for you today.
+- You don’t need to follow every launch. Try a current tool on one real task and judge the result yourself.
 
 ## 10. Your turn. Let’s build.
-*Target: 0:50*
-
-Now the hackathon begins. Pick one idea you have put off, ask Codex or Claude Code for a small working version in this project, then try it and make one revision. Bring back a quick demo and one thing you learned. Let’s build.
-
-## Sources
-
-- [Firefox iOS Engineering Summit idea list](https://docs.google.com/document/d/1s5F5zP5jpdSwXtEzp95MV6RTfJXubS8e77OW3dfTojc/edit): team ideas used on slide 2.
-- [Codex best practices](https://learn.chatgpt.com/guides/best-practices) and [Claude Code best practices](https://code.claude.com/docs/en/best-practices): starting from a clear goal and inviting clarifying questions.
-- [Codex fast mode](https://learn.chatgpt.com/docs/agent-configuration/speed), [Claude Code fast mode](https://code.claude.com/docs/en/fast-mode), and [Claude Code effort](https://code.claude.com/docs/en/model-config): speed and reasoning controls. Availability varies by model, plan, and organization.
-- [Apple iPhone Mirroring](https://support.apple.com/en-ca/120421) and [Xcode Simulator](https://developer.apple.com/documentation/xcode/running-your-app-in-simulator-or-on-a-device): ways to inspect an iOS app.
-- Christian Elton ([@christianelton](https://x.com/christianelton)), [original video post](https://x.com/christianelton/status/2102461838034428394). The supplied clip is silent and 29 seconds long.
+- Target: 0:50
