@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rapid prototyping with AI</title>
+<style>
+:root{
+  --paper:#f5f1e8; --paper-2:#ece6d8; --ink:#1b1916; --muted:#6b655c; --rule:rgba(27,25,22,.16);
+  --accent:#c2410c; --accent-bright:#e8590c; --night:#16140f; --night-ink:#f5f1e8; --night-accent:#ff8a4c;
+  --c-what:#2f5d8a; --c-who:#2f7a55; --c-con:#a86a00; --c-done:#c2410c;
+  --serif:"Iowan Old Style","Charter","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:"Avenir Next","Segoe UI","Helvetica Neue",system-ui,-apple-system,sans-serif;
+  --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#0d0c0a;font-family:var(--sans);color:var(--ink)}
+button{font:inherit;cursor:pointer}
+a{color:inherit;text-underline-offset:.18em;text-decoration-thickness:1px}
+h1,h2,h3,p,figure,ol,ul,blockquote,pre{margin:0}
+ol,ul{padding:0;list-style:none}
+
+/* Stage and scaling */
+#stage{position:absolute;inset:0;bottom:var(--notes-h,0px);overflow:hidden}
+#deck{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform:translate(-50%,-50%) scale(var(--scale,1));transform-origin:center}
+.slide{position:absolute;inset:0;width:1600px;height:900px;padding:64px 96px 56px;background:var(--paper);display:flex;flex-direction:column;overflow:hidden}
+.slide[hidden]{display:none}
+.slide.night{background:var(--night);color:var(--night-ink)}
+.slide.warm{background:var(--paper-2)}
+.slide .notes{display:none}
+
+/* Slide layout */
+.body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:safe center}
+.sources{font-size:17px;line-height:1.4;color:var(--muted);margin-top:22px;max-width:1300px}
+.night .sources{color:rgba(245,241,232,.6)}
+.sources a{white-space:nowrap}
+
+/* Type */
+.title{font-family:var(--serif);font-weight:600;font-size:84px;line-height:1.02;letter-spacing:-.02em;max-width:1300px}
+.title.md{font-size:70px}
+.title em{font-style:italic;color:var(--accent)}
+.night .title em{color:var(--night-accent)}
+.lede{font-size:34px;line-height:1.35;color:var(--muted);max-width:1180px;margin-top:22px}
+.night .lede{color:rgba(245,241,232,.72)}
+.kicker{font-size:20px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--accent);margin-bottom:14px}
+.night .kicker{color:var(--night-accent)}
+.mono{font-family:var(--mono)}
+.take{font-family:var(--serif);font-style:italic;font-size:34px;line-height:1.3;margin-top:28px}
+.muted{color:var(--muted)}
+.label-ex{font-size:17px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+kbd{font-family:var(--mono);font-size:.82em;padding:.05em .35em;border:1px solid currentColor;border-radius:6px;opacity:.9}
+code{font-family:var(--mono);font-size:.9em}
+
+
+/* Cover */
+.cover .body{justify-content:flex-end;padding-bottom:55px}
+.cover h1{font-family:var(--serif);font-weight:600;font-size:160px;line-height:.97;letter-spacing:-.035em;max-width:1400px}
+.cover .pretitle{display:block;font-size:52px;line-height:1;letter-spacing:0;color:var(--night-accent);margin-bottom:27px}
+.cover h1 em{font-style:italic;color:var(--night-accent)}
+
+/* Benefits */
+.benefits .body{position:relative;justify-content:center;align-items:center}
+.benefit-lines{position:relative;z-index:1;font-family:var(--serif);font-size:112px;font-weight:600;line-height:1.13;letter-spacing:-.03em;text-align:center}
+.benefit-lines span{display:block}
+.benefit-lines span:nth-child(2){color:var(--accent)}
+.orbit-ideas{position:absolute;inset:0;pointer-events:none}
+.orbit-ideas li{position:absolute;font-size:25px;line-height:1.2;color:var(--muted);opacity:.58;white-space:nowrap}
+.orbit-ideas li:nth-child(1){top:6%;left:8%;transform:rotate(-5deg)}
+.orbit-ideas li:nth-child(2){top:11%;left:43%;transform:rotate(4deg)}
+.orbit-ideas li:nth-child(3){top:7%;right:7%;transform:rotate(-3deg)}
+.orbit-ideas li:nth-child(4){top:45%;left:0;transform:rotate(6deg)}
+.orbit-ideas li:nth-child(5){top:50%;right:0;transform:rotate(-5deg)}
+.orbit-ideas li:nth-child(6){bottom:12%;left:7%;transform:rotate(3deg)}
+.orbit-ideas li:nth-child(7){bottom:7%;left:42%;transform:rotate(-4deg)}
+.orbit-ideas li:nth-child(8){bottom:11%;right:5%;transform:rotate(5deg)}
+
+/* GIF interlude */
+.gif-slide .body{align-items:center;justify-content:center}
+.gif-slide img{display:block;width:800px;height:auto;max-height:620px;object-fit:contain;image-rendering:pixelated}
+.gesture-slide .body{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:56px;align-items:center;justify-content:center}
+.gesture-slide img{display:block;max-width:100%;object-fit:contain;border-radius:12px}
+.gesture-slide .demo-gif{height:735px;width:auto;justify-self:center}
+.gesture-slide .result-image{width:100%;height:auto;max-height:735px}
+.gesture-slide .footnote{position:absolute;left:96px;bottom:28px;font-size:18px;color:rgba(245,241,232,.6)}
+
+/* Mindset */
+.mindset .body{justify-content:center}
+.mindset .title{font-size:112px;max-width:none}
+.mindset .yet{display:inline-block;font-size:48px;line-height:1;letter-spacing:0;color:var(--night-accent);margin-left:24px;white-space:nowrap}
+.mindset .contrast{font-family:var(--serif);font-size:66px;line-height:1.1;color:var(--night-accent);margin-top:48px}
+
+/* Chat */
+.chat-slide .body{position:relative;z-index:1}
+.chat-slide .title{font-size:105px;max-width:none}
+.crossed-ideas{position:absolute;inset:0;pointer-events:none;color:var(--muted)}
+.crossed-ideas span{position:absolute;display:block;font-size:28px;line-height:1.15;opacity:.48;text-decoration:line-through;text-decoration-thickness:2px;white-space:nowrap}
+.crossed-ideas .persona{top:185px;right:110px;width:350px;transform:rotate(-12deg);font-size:30px;text-align:center;white-space:normal;opacity:.57}
+.crossed-ideas .skills{top:135px;left:205px;transform:rotate(11deg)}
+.crossed-ideas .mcp{top:105px;left:780px;transform:rotate(-17deg)}
+.crossed-ideas .orchestration{bottom:73px;left:50%;transform:translateX(-50%) rotate(6deg)}
+.crossed-ideas .rag{bottom:135px;left:170px;transform:rotate(-8deg)}
+.crossed-ideas .agents{bottom:130px;right:150px;transform:rotate(14deg)}
+.prompt-demo{font-size:38px;line-height:1.5;max-width:1350px;margin-top:42px;padding:38px 44px;border:2px solid var(--ink);border-radius:18px;background:#fffdf8}
+
+/* Model progress */
+.video-grid{display:grid;grid-template-columns:355px 1fr;gap:70px;align-items:center}
+.video-grid .title{font-size:78px;line-height:1.04}
+.video-grid .aside{font-size:28px;line-height:1.35;color:rgba(245,241,232,.68);margin-top:40px}
+.video-grid video{width:100%;aspect-ratio:16/9;background:#000;display:block;border-radius:5px}
+.video-grid figcaption{font-size:18px;line-height:1.4;color:rgba(245,241,232,.68);margin-top:12px}
+
+/* Tips */
+.tips-slide .title{font-size:104px;max-width:none}
+.tips-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:52px;margin-top:80px}
+.tips-grid>div{border-top:2px solid var(--accent);padding-top:24px}
+.tips-grid h3{font-family:var(--serif);font-size:47px;font-weight:600;line-height:1.1}
+.tips-grid p{font-size:27px;line-height:1.35;color:#3b3731;margin-top:20px}
+.tips-grid .tip-detail{font-family:var(--mono);font-size:20px;line-height:1.55;color:var(--accent);margin-top:35px}
+
+/* Hand-off */
+.handoff .body{justify-content:center}
+.handoff .title{font-size:128px;line-height:.99;max-width:1390px}
+/* UI */
+#bar{position:fixed;left:0;right:0;bottom:var(--notes-h,0px);height:52px;display:flex;align-items:center;gap:6px;padding:0 14px;background:linear-gradient(transparent,rgba(0,0,0,.55));color:#f5f1e8;font-size:15px;opacity:0;transition:opacity .25s ease, bottom .2s ease;z-index:20}
+#bar.show,#bar:focus-within{opacity:1}
+#bar button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:inherit;border-radius:8px;padding:6px 11px}
+#bar button:hover{background:rgba(255,255,255,.2)}
+#bar .spacer{flex:1}
+#progress{position:fixed;left:0;top:0;height:4px;background:var(--accent-bright);z-index:21;transition:width .25s ease}
+#notes{position:fixed;left:0;right:0;bottom:0;height:var(--notes-h,0px);background:#1d1b17;color:#efe9dc;overflow:auto;padding:0;z-index:19;font-size:19px;line-height:1.55}
+#notes .inner{padding:18px 28px 24px;max-width:1200px}
+#notes .meta{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#a79f90;margin-bottom:6px}
+.overlay{position:fixed;inset:0;background:rgba(13,12,10,.97);color:#f5f1e8;z-index:30;overflow:auto;padding:48px 64px}
+.overlay[hidden]{display:none}
+.overlay h2{font-family:var(--serif);font-size:34px;font-weight:600;margin-bottom:18px}
+.overlay .close{position:fixed;top:20px;right:24px;background:none;border:1px solid rgba(255,255,255,.3);color:inherit;border-radius:8px;padding:6px 12px}
+#list ol{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:8px 24px;margin-bottom:34px}
+#list ol button{width:100%;text-align:left;background:none;border:0;border-top:1px solid rgba(255,255,255,.14);color:inherit;padding:12px 4px;display:grid;grid-template-columns:44px 1fr auto;gap:10px;font-size:18px}
+#list ol button:hover,#list ol button:focus-visible{background:rgba(255,255,255,.07);outline:none}
+#list ol button[aria-current="true"]{color:var(--night-accent)}
+#list .n{font-variant-numeric:tabular-nums;color:#a79f90}
+#list .d{color:#a79f90;font-size:15px}
+#help dl{display:grid;grid-template-columns:220px 1fr;gap:10px 20px;font-size:19px;max-width:760px}
+#help dt{font-family:var(--mono);color:var(--night-accent)}
+#help dd{margin:0}
+:focus-visible{outline:3px solid var(--accent-bright);outline-offset:3px}
+
+@media print{
+  @page{size:1600px 900px;margin:0}
+  html,body{overflow:visible;background:#fff;height:auto}
+  #stage{position:static}
+  #deck{position:static;transform:none}
+  .slide,.slide[hidden]{position:relative;display:flex!important;page-break-after:always;break-after:page}
+  #bar,#progress,#notes,.overlay{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="progress" aria-hidden="true"></div>
+<main id="stage">
+<div id="deck">
+<!-- 1 -->
+<section class="slide night cover" data-title="Rapid prototyping with AI" data-time="0:20">
+  <div class="body">
+    <h1><span class="pretitle">(really)</span>Rapid prototyping<br>with <em>AI</em></h1>
+  </div>
+  
+  <aside class="notes">
+Today is about making a first version and learning from it. You do not have to believe AI will write perfect code. Try it on one real idea, look at what it produces, and decide what deserves more work.
+  </aside>
+</section>
+
+<!-- 2 -->
+<section class="slide benefits" data-title="Test more ideas. Get feedback sooner." data-time="0:55">
+  <div class="body">
+    <h2 class="benefit-lines"><span>Test more ideas.</span><span>Get feedback sooner.</span></h2>
+    <ul class="orbit-ideas" aria-label="Ideas from the team"><li>Bookmark all<br>open tabs</li><li>Distraction control</li><li>AI compare tabs</li><li>Microinteractions</li><li>Agentic browsing</li><li>Save reading list<br>offline</li><li>Homepage shortcut<br>folders</li><li>Quicker access<br>to incognito</li></ul>
+  </div>
+  <aside class="notes">
+The phrases around the title come from our team's Engineering Summit list, from bookmark all open tabs to AI compare tabs. We already have more ideas than time. We do not need complete versions to learn something: a small working slice in the app, or even a focused investigation, can reveal what is hard and what is worth pursuing. Agents shorten the path to that first result, so we can try more ideas and get feedback sooner. After a quick visual pause, we will talk about the boundary for code we keep.
+  </aside>
+</section>
+
+<!-- 3 -->
+<section class="slide night gif-slide" data-title="A first pass can start small" data-time="0:10">
+  <div class="body"><img src="rapid-prototyping-assets/giphy-ai.gif" alt="SpongeBob excitedly raising his hands"></div>
+  <aside class="notes">Pause for the reaction, then move into the first-pass mindset.</aside>
+</section>
+
+<!-- 4 -->
+<section class="slide night mindset" data-title="AI may not code as good as you (yet)" data-time="0:55">
+  <div class="body">
+    <h2 class="title">AI may not code<br>as good as you<span class="yet">(yet)</span></h2>
+    <p class="contrast">but AI does code faster than you</p>
+  </div>
+  
+  <aside class="notes">
+AI may choose a different structure or miss conventions you would catch. The speed still matters: a first pass can get an idea into the app quickly enough to test. When the result is worth keeping, review the design, make the code readable, check behavior, and test the risks. AI makes mistakes, just as we do, so the check is part of the workflow.
+  </aside>
+</section>
+
+<!-- 5 -->
+<section class="slide warm chat-slide" data-title="Just use the chat box." data-time="1:05">
+  <div class="crossed-ideas" aria-hidden="true"><span class="persona">You are a senior<br>iOS engineer...</span><span class="skills">SKILLS.md</span><span class="mcp">MCP</span><span class="orchestration">Agent Orchestration</span><span class="rag">RAG</span><span class="agents">Set up a team of agents</span></div>
+  <div class="body">
+    <h2 class="title">Just use the <em>chat box.</em></h2><div class="prompt-demo">“After swiping the address bar up, let me drag left to close the tab or right to bookmark it, with visible hints for both actions.”</div>
+  </div>
+  <aside class="notes">
+No elaborate prompt framework or role persona is needed. Open Codex or Claude Code in the project and describe the behavior you want. This example gives the agent a concrete gesture and visible result to build in the existing app. If the gesture mechanics or hints are ambiguous, let the agent ask before coding. The crossed-out terms are tools or workflows that might become useful later, but none is needed to try this first request.
+  </aside>
+</section>
+
+<!-- 6 -->
+<section class="slide night gesture-slide" data-title="Address bar gesture prototype" data-time="0:20">
+  <div class="body"><img class="result-image" src="rapid-prototyping-assets/address-bar-prompt-result.png" alt="Codex screenshot showing the gesture request and an implementation summary after 3 minutes 19 seconds"><img class="demo-gif" src="rapid-prototyping-assets/address-bar-gesture.gif" alt="Firefox iOS prototype showing a tab dragged sideways with Close Tab and Bookmark Page hints"></div>
+  <p class="footnote">Created with GPT 6 Sol on Medium Reasoning.</p>
+  <aside class="notes">Let the recording loop once or twice. The screenshot shows the request and implementation summary; the screen recording shows the gesture running in the app. This prototype was created with GPT 6 Sol on Medium Reasoning.</aside>
+</section>
+
+<!-- 7 -->
+<section class="slide night gesture-slide" data-title="Refined address bar gesture" data-time="0:20">
+  <div class="body"><img class="result-image" src="rapid-prototyping-assets/address-bar-refinement-result.png" alt="Codex screenshot describing the refined address bar gesture and its implementation after 3 minutes 32 seconds"><img class="demo-gif" src="rapid-prototyping-assets/address-bar-refined-demo.gif" alt="Firefox iOS prototype showing animated close and bookmark zones around a draggable tab preview"></div>
+  <p class="footnote">Created with GPT 6 Astra on High Reasoning.</p>
+  <aside class="notes">Let the recording loop once or twice. This second pass adds fixed edge zones, release labels, and animations around the tab preview. The screenshot shows the follow-up request and implementation summary. It was created with GPT 6 Astra on High Reasoning.</aside>
+</section>
+
+<!-- 8 -->
+<section class="slide warm tips-slide" data-title="Tips &amp; tricks" data-time="1:30">
+  <div class="body">
+    <h2 class="title">Tips &amp; <em>tricks.</em></h2>
+    <div class="tips-grid"><div><h3>Fast mode</h3><p>Spend less time waiting when iteration speed matters.</p><p class="tip-detail">Codex: /fast on<br>Claude Code: /fast</p></div><div><h3>Reasoning effort</h3><p>Start at the default. Turn it up for ambiguous or complex work.</p><p class="tip-detail">Codex: model picker<br>Claude Code: /effort</p></div><div><h3>Give it eyes</h3><p>Share screenshots or recordings. Ask for visual evidence in return.</p><p class="tip-detail">Tell it to use Simulator<br>or iPhone Mirroring</p></div></div>
+  </div>
+  <aside class="notes">Start with the defaults. Fast mode can shorten waits on supported models, usually at higher cost: Codex uses /fast on, and Claude Code uses /fast. Raise reasoning effort when a task is genuinely ambiguous or complex; use the Codex model picker or Claude Code /effort. Share screenshots or recordings with specific feedback. Ask the agent to return visual evidence from Simulator or iPhone Mirroring when available.</aside>
+</section>
+
+<!-- 9 -->
+<section class="slide night video-slide" data-title="The baseline has changed." data-time="1:10">
+  <div class="body">
+    <div class="video-grid"><div><h2 class="title">The baseline has <em>changed.</em></h2><p class="aside">A bad experience months ago may not predict today.</p></div><figure><video id="timeline-video" src="rapid-prototyping-assets/model-release-timeline.mp4" poster="rapid-prototyping-assets/video-poster.jpg" controls preload="metadata" playsinline muted aria-label="Animated timeline of major OpenAI and Anthropic model releases, 2022 to 2026"></video><figcaption>Christian Elton (<a href="https://x.com/christianelton">@christianelton</a>) · <a href="https://x.com/christianelton/status/2102461838034428394">original X post</a></figcaption></figure></div>
+  </div>
+  
+  <aside class="notes">
+Play the clip with V or the video control. It is silent and runs for 29 seconds. Christian Elton's visualization shows how closely major model releases now arrive. His selection of releases is illustrative, not an official census. The point is modest: if you tried an AI coding tool months ago and it disappointed you, retest that assumption on one current task. You do not need to chase every model launch.
+  </aside>
+</section>
+
+<!-- 10 -->
+<section class="slide night handoff" data-title="Your turn. Let’s build." data-time="0:50">
+  <div class="body">
+    <h2 class="title">Your turn.<br><em>Let’s build.</em></h2>
+  </div>
+  <aside class="notes">Now the hackathon begins. Pick one idea you have put off, ask Codex or Claude Code for a small working version in this project, then try it and make one revision. Bring back a quick demo and one thing you learned. Let’s build.</aside>
+</section>
+</div>
+</main>
+
+<div id="notes" aria-label="Speaker notes" hidden><div class="inner"><p class="meta" id="notes-meta"></p><div id="notes-text"></div></div></div>
+
+<nav id="bar" aria-label="Deck controls">
+  <button id="prev" aria-label="Previous slide">←</button>
+  <button id="next" aria-label="Next slide">→</button>
+  <span class="spacer"></span>
+  <button id="btn-help" aria-label="Keyboard shortcuts (?)">?</button>
+</nav>
+
+<div id="list" class="overlay" role="dialog" aria-modal="true" aria-label="Slide list" hidden>
+  <button class="close" data-close>Close · Esc</button>
+  <h2>Talk</h2><ol id="list-main"></ol>
+  <ol id="list-ref" hidden></ol>
+</div>
+
+<div id="help" class="overlay" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts" hidden>
+  <button class="close" data-close>Close · Esc</button>
+  <h2>Keyboard shortcuts</h2>
+  <dl>
+    <dt>→ Space PgDn</dt><dd>Next slide</dd>
+    <dt>← PgUp</dt><dd>Previous slide</dd>
+    <dt>Home / End</dt><dd>First / last slide</dd>
+    <dt>3 then Enter</dt><dd>Jump to slide 3</dd>
+    <dt>S</dt><dd>Slide list</dd>
+    <dt>N</dt><dd>Speaker notes on this screen</dd>
+    <dt>P</dt><dd>Presenter window with notes, next slide, and timer (for a second screen)</dd>
+    <dt>F</dt><dd>Fullscreen</dd>
+    <dt>V</dt><dd>Play / pause the video</dd>
+    <dt>Esc</dt><dd>Close overlays</dd>
+  </dl>
+</div>
+
+<script>
+(() => {
+  const slides = [...document.querySelectorAll('.slide')];
+  const mainCount = slides.filter(s => !s.hasAttribute('data-ref')).length;
+  const deck = document.getElementById('deck');
+  const bar = document.getElementById('bar');
+  const notesEl = document.getElementById('notes');
+  const video = document.getElementById('timeline-video');
+  let current = 0, typed = '', typedTimer = null, hideTimer = null, presenter = null, gifVisit = 0;
+  const startedAt = Date.now();
+
+  const label = i => slides[i].hasAttribute('data-ref')
+    ? 'Ref ' + String.fromCharCode(65 + i - mainCount)
+    : String(i + 1).padStart(2, '0') + ' / ' + mainCount;
+
+  function fit() {
+    const stage = document.getElementById('stage').getBoundingClientRect();
+    deck.style.setProperty('--scale', Math.min(stage.width / 1600, stage.height / 900));
+  }
+
+  const notesText = i => (slides[i].querySelector('.notes')?.textContent || '').trim();
+
+  function go(i, fromHash) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    if (slides[current] !== slides[i] && video && !video.paused) video.pause();
+    slides[current].hidden = true;
+    current = i;
+    slides[i].hidden = false;
+    slides[i].querySelectorAll('img[src*=".gif"]').forEach(img => {
+      const source = img.dataset.gifSource || img.getAttribute('src').split('?')[0];
+      img.dataset.gifSource = source;
+      img.src = source + '?restart=' + ++gifVisit;
+    });
+    document.getElementById('progress').style.width = ((i + 1) / slides.length * 100) + '%';
+    document.getElementById('notes-meta').textContent =
+      (slides[i].dataset.title || '') + ' · ' + (slides[i].dataset.time === 'Ref' ? 'reference' : slides[i].dataset.time);
+    document.getElementById('notes-text').innerHTML = notesText(i).split(/\n\s*\n/).map(p => '<p style="margin:0 0 12px">' + escapeHtml(p) + '</p>').join('');
+    document.title = (slides[i].dataset.title || '') + ' · Rapid prototyping with AI';
+    if (!fromHash) history.replaceState(null, '', '#' + (i + 1));
+    document.querySelectorAll('#list ol button').forEach(b => b.setAttribute('aria-current', String(+b.dataset.i === i)));
+    updatePresenter();
+  }
+
+  function escapeHtml(s) { return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  function toggleNotes(force) {
+    const on = force ?? notesEl.hidden;
+    notesEl.hidden = !on;
+    document.documentElement.style.setProperty('--notes-h', on ? Math.round(innerHeight * 0.3) + 'px' : '0px');
+    fit();
+  }
+
+  function toggleFull() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+    else document.exitFullscreen?.();
+  }
+
+  function openOverlay(id) {
+    document.querySelectorAll('.overlay').forEach(o => o.hidden = o.id !== id || !o.hidden);
+    const o = document.getElementById(id);
+    if (!o.hidden) (o.querySelector('[aria-current="true"]') || o.querySelector('button')).focus();
+  }
+  function closeOverlays() { document.querySelectorAll('.overlay').forEach(o => o.hidden = true); }
+  const overlayOpen = () => [...document.querySelectorAll('.overlay')].some(o => !o.hidden);
+
+  function buildList() {
+    const main = document.getElementById('list-main'), ref = document.getElementById('list-ref');
+    slides.forEach((s, i) => {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.dataset.i = i;
+      b.innerHTML = '<span class="n">' + (s.hasAttribute('data-ref') ? String.fromCharCode(65 + i - mainCount) : i + 1) + '</span><span>' +
+        escapeHtml(s.dataset.title.replace(/^Reference [A-Z] · /, '')) + '</span><span class="d">' + (s.dataset.time === 'Ref' ? '' : s.dataset.time) + '</span>';
+      b.addEventListener('click', () => { closeOverlays(); go(i); });
+      li.appendChild(b);
+      (s.hasAttribute('data-ref') ? ref : main).appendChild(li);
+    });
+  }
+
+  function toggleVideo() {
+    if (!video || slides[current] !== video.closest('.slide')) return;
+    video.paused ? video.play().catch(() => {}) : video.pause();
+  }
+
+  // Presenter window (same-origin about:blank popup; works from file://)
+  function openPresenter() {
+    try {
+      presenter = window.open('', 'rp-presenter', 'width=980,height=720');
+      if (!presenter) return alert('Pop-up blocked. Allow pop-ups for this file, or press N for notes on this screen.');
+      const d = presenter.document;
+      d.open();
+      d.write('<!doctype html><title>Presenter · Rapid prototyping with AI</title><style>' +
+        'body{margin:0;background:#16140f;color:#f5f1e8;font:20px/1.55 "Avenir Next","Segoe UI",system-ui,sans-serif;padding:28px 36px}' +
+        'header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #3a352d;padding-bottom:12px;margin-bottom:18px}' +
+        'h1{font:600 34px/1.15 "Iowan Old Style",Georgia,serif;margin:0}#meta,#nextt{color:#a79f90;font-size:16px;letter-spacing:.06em;text-transform:uppercase}' +
+        '#timer{font:600 40px "SF Mono",Menlo,monospace}#n p{margin:0 0 14px;max-width:62em;font-size:24px}' +
+        'nav{margin-top:18px;display:flex;gap:10px}button{font:inherit;font-size:16px;background:#2a2620;color:inherit;border:1px solid #4a443a;border-radius:8px;padding:8px 14px;cursor:pointer}' +
+        '</style><header><div><div id="meta"></div><h1 id="t"></h1></div><div id="timer">00:00</div></header><div id="n"></div>' +
+        '<p id="nextt"></p><nav><button id="pp">← Prev</button><button id="nn">Next →</button><button id="rs">Reset timer</button></nav>');
+      d.close();
+      d.getElementById('pp').onclick = () => go(current - 1);
+      d.getElementById('nn').onclick = () => go(current + 1);
+      d.getElementById('rs').onclick = () => { presenter._t0 = Date.now(); };
+      presenter._t0 = Date.now();
+      d.addEventListener('keydown', onKey);
+      clearInterval(presenter._iv);
+      presenter._iv = presenter.setInterval(() => {
+        const s = Math.floor((Date.now() - presenter._t0) / 1000);
+        d.getElementById('timer').textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+      }, 500);
+      updatePresenter();
+    } catch (e) { alert('Presenter window unavailable here. Press N for notes on this screen.'); }
+  }
+  function updatePresenter() {
+    if (!presenter || presenter.closed) return;
+    try {
+      const d = presenter.document, s = slides[current];
+      d.getElementById('t').textContent = s.dataset.title;
+      d.getElementById('meta').textContent = label(current) + ' · ' + (s.dataset.time === 'Ref' ? 'reference' : 'target ' + s.dataset.time);
+      d.getElementById('n').innerHTML = notesText(current).split(/\n\s*\n/).map(p => '<p>' + escapeHtml(p) + '</p>').join('');
+      d.getElementById('nextt').textContent = current < slides.length - 1 ? 'Next: ' + slides[current + 1].dataset.title : 'End of deck';
+    } catch (e) {}
+  }
+
+  function onKey(e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (k === 'Escape') { if (overlayOpen()) { closeOverlays(); e.preventDefault(); } return; }
+    if (overlayOpen() && !['s','S','?'].includes(k)) return;
+    if (e.target.closest && e.target.closest('video') && (k === ' ' || k.startsWith('Arrow'))) { e.target.blur(); }
+    if (/^[0-9]$/.test(k)) { typed += k; clearTimeout(typedTimer); typedTimer = setTimeout(() => typed = '', 1500); return; }
+    if (k === 'Enter' && typed) { go(parseInt(typed, 10) - 1); typed = ''; e.preventDefault(); return; }
+    switch (k) {
+      case 'ArrowRight': case 'ArrowDown': case 'PageDown': case ' ': go(current + 1); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp': case 'Backspace': go(current - 1); break;
+      case 'Home': go(0); break;
+      case 'End': go(slides.length - 1); break;
+      case 's': case 'S': case 'g': case 'G': openOverlay('list'); break;
+      case 'n': case 'N': toggleNotes(); break;
+      case 'p': case 'P': openPresenter(); break;
+      case 'f': case 'F': toggleFull(); break;
+      case 'v': case 'V': case 'k': case 'K': toggleVideo(); break;
+      case '?': openOverlay('help'); break;
+      default: return;
+    }
+    e.preventDefault();
+  }
+
+  document.addEventListener('keydown', onKey);
+  document.getElementById('prev').onclick = () => go(current - 1);
+  document.getElementById('next').onclick = () => go(current + 1);
+  document.getElementById('btn-help').onclick = () => openOverlay('help');
+  document.querySelectorAll('[data-close]').forEach(b => b.onclick = closeOverlays);
+  document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) closeOverlays(); }));
+
+  // Swipe
+  let tx = null;
+  addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive: true});
+  addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 50) go(current + (dx < 0 ? 1 : -1)); tx = null; });
+
+  // Auto-hide the control bar
+  addEventListener('mousemove', () => { bar.classList.add('show'); clearTimeout(hideTimer); hideTimer = setTimeout(() => bar.classList.remove('show'), 2200); });
+  addEventListener('resize', () => { if (!notesEl.hidden) toggleNotes(true); fit(); });
+  addEventListener('hashchange', () => { const n = parseInt(location.hash.slice(1), 10); if (n) go(n - 1, true); });
+  addEventListener('beforeunload', () => { try { presenter && presenter.close(); } catch (e) {} });
+
+  buildList();
+  slides.forEach(s => s.hidden = true);
+  const start = parseInt(location.hash.slice(1), 10);
+  go(Number.isFinite(start) ? start - 1 : 0, true);
+  fit();
+})();
+</script>
+</body>
+</html>
