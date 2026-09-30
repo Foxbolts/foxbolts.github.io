@@ -125,7 +125,6 @@ code{font-family:var(--mono);font-size:.9em}
 #bar.show,#bar:focus-within{opacity:1}
 #bar button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:inherit;border-radius:8px;padding:6px 11px}
 #bar button:hover{background:rgba(255,255,255,.2)}
-#bar .spacer{flex:1}
 #progress{position:fixed;left:0;top:0;height:4px;background:var(--accent-bright);z-index:21;transition:width .25s ease}
 #notes{position:fixed;left:0;right:0;bottom:0;height:var(--notes-h,0px);background:#1d1b17;color:#efe9dc;overflow:auto;padding:0;z-index:19;font-size:19px;line-height:1.55}
 #notes .inner{padding:18px 28px 24px;max-width:1200px}
@@ -144,9 +143,6 @@ code{font-family:var(--mono);font-size:.9em}
 #list ol button[aria-current="true"]{color:var(--night-accent)}
 #list .n{font-variant-numeric:tabular-nums;color:#a79f90}
 #list .d{color:#a79f90;font-size:15px}
-#help dl{display:grid;grid-template-columns:220px 1fr;gap:10px 20px;font-size:19px;max-width:760px}
-#help dt{font-family:var(--mono);color:var(--night-accent)}
-#help dd{margin:0}
 :focus-visible{outline:3px solid var(--accent-bright);outline-offset:3px}
 
 /* Mozilla template inspired variation */
@@ -211,8 +207,8 @@ html,body{background:#161616;font-family:var(--sans)}
 #progress{background:#00e444}
 #bar{font-family:var(--sans)}
 #notes{font-family:var(--sans);background:#161616;color:#fff}
-#list,#help{font-family:var(--sans)}
-#list ol button[aria-current='true'],#help dt{color:#00e444}
+#list{font-family:var(--sans)}
+#list ol button[aria-current='true']{color:#00e444}
 :focus-visible{outline-color:#00e444}
 
 @media print{
@@ -357,32 +353,12 @@ html,body{background:#161616;font-family:var(--sans)}
 <nav id="bar" aria-label="Deck controls">
   <button id="prev" aria-label="Previous slide">←</button>
   <button id="next" aria-label="Next slide">→</button>
-  <span class="spacer"></span>
-  <button id="btn-help" aria-label="Keyboard shortcuts (?)">?</button>
 </nav>
 
 <div id="list" class="overlay" role="dialog" aria-modal="true" aria-label="Slide list" hidden>
   <button class="close" data-close>Close · Esc</button>
   <h2>Talk</h2><ol id="list-main"></ol>
   <ol id="list-ref" hidden></ol>
-</div>
-
-<div id="help" class="overlay" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts" hidden>
-  <button class="close" data-close>Close · Esc</button>
-  <h2>Keyboard shortcuts</h2>
-  <dl>
-    <dt>→ Space PgDn</dt><dd>Next slide</dd>
-    <dt>← PgUp</dt><dd>Previous slide</dd>
-    <dt>Home / End</dt><dd>First / last slide</dd>
-    <dt>3 then Enter</dt><dd>Jump to slide 3</dd>
-    <dt>S</dt><dd>Slide list</dd>
-    <dt>N</dt><dd>Speaker notes on this screen</dd>
-    <dt>⌘S / Ctrl+S</dt><dd>Download presenter notes as Markdown</dd>
-    <dt>P</dt><dd>Presenter window with notes, next slide, and timer (for a second screen)</dd>
-    <dt>F</dt><dd>Fullscreen</dd>
-    <dt>V</dt><dd>Play / pause the video</dd>
-    <dt>Esc</dt><dd>Close overlays</dd>
-  </dl>
 </div>
 
 <script>
@@ -397,6 +373,7 @@ html,body{background:#161616;font-family:var(--sans)}
   const dirtyNotes = new Set();
   const video = document.getElementById('timeline-video');
   let current = 0, typed = '', typedTimer = null, hideTimer = null, presenter = null, gifVisit = 0;
+  let pPressCount = 0, pLastPress = 0;
   const startedAt = Date.now();
 
   const label = i => slides[i].hasAttribute('data-ref')
@@ -563,8 +540,9 @@ html,body{background:#161616;font-family:var(--sans)}
     if (e.target.closest && e.target.closest('textarea,input,[contenteditable="true"]')) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     const k = e.key;
+    if (k !== 'p' && k !== 'P') pPressCount = 0;
     if (k === 'Escape') { if (overlayOpen()) { closeOverlays(); e.preventDefault(); } return; }
-    if (overlayOpen() && !['s','S','?'].includes(k)) return;
+    if (overlayOpen() && !['s','S'].includes(k)) return;
     if (e.target.closest && e.target.closest('video') && (k === ' ' || k.startsWith('Arrow'))) { e.target.blur(); }
     if (/^[0-9]$/.test(k)) { typed += k; clearTimeout(typedTimer); typedTimer = setTimeout(() => typed = '', 1500); return; }
     if (k === 'Enter' && typed) { go(parseInt(typed, 10) - 1); typed = ''; e.preventDefault(); return; }
@@ -575,10 +553,16 @@ html,body{background:#161616;font-family:var(--sans)}
       case 'End': go(slides.length - 1); break;
       case 's': case 'S': case 'g': case 'G': openOverlay('list'); break;
       case 'n': case 'N': toggleNotes(); break;
-      case 'p': case 'P': openPresenter(); break;
+      case 'p': case 'P':
+        if (!e.repeat && e.currentTarget === document) {
+          const now = performance.now();
+          pPressCount = now - pLastPress <= 600 ? pPressCount + 1 : 1;
+          pLastPress = now;
+          if (pPressCount === 3) { pPressCount = 0; openPresenter(); }
+        }
+        break;
       case 'f': case 'F': toggleFull(); break;
       case 'v': case 'V': case 'k': case 'K': toggleVideo(); break;
-      case '?': openOverlay('help'); break;
       default: return;
     }
     e.preventDefault();
@@ -589,7 +573,6 @@ html,body{background:#161616;font-family:var(--sans)}
   document.getElementById('notes-save').onclick = downloadNotes;
   document.getElementById('prev').onclick = () => go(current - 1);
   document.getElementById('next').onclick = () => go(current + 1);
-  document.getElementById('btn-help').onclick = () => openOverlay('help');
   document.querySelectorAll('[data-close]').forEach(b => b.onclick = closeOverlays);
   document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) closeOverlays(); }));
 
